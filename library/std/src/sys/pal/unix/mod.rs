@@ -158,6 +158,7 @@ pub unsafe fn init(argc: isize, argv: *const *const u8, sigpipe: u8) {
             target_os = "horizon",
             target_os = "vxworks",
             target_os = "vita",
+            target_os = "l4re",
             // Unikraft's `signal` implementation is currently broken:
             // https://github.com/unikraft/lib-musl/issues/57
             target_vendor = "unikraft",
@@ -274,6 +275,7 @@ pub fn decode_error_kind(errno: i32) -> ErrorKind {
         libc::ETIMEDOUT => TimedOut,
         libc::ETXTBSY => ExecutableFileBusy,
         libc::EXDEV => CrossesDevices,
+        #[cfg(not(target_os = "l4re"))]
         libc::EINPROGRESS => InProgress,
 
         libc::EACCES | libc::EPERM => PermissionDenied,

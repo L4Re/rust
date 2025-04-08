@@ -469,7 +469,7 @@ impl FileAttr {
     }
 }
 
-#[cfg(not(any(target_os = "netbsd", target_os = "nto", target_os = "aix")))]
+#[cfg(not(any(target_os = "netbsd", target_os = "nto", target_os = "l4re", target_os = "aix")))]
 impl FileAttr {
     #[cfg(not(any(
         target_os = "vxworks",
@@ -579,7 +579,7 @@ impl FileAttr {
     }
 }
 
-#[cfg(target_os = "nto")]
+#[cfg(any(target_os = "nto", target_os = "l4re"))]
 impl FileAttr {
     pub fn modified(&self) -> io::Result<SystemTime> {
         SystemTime::new(self.stat.st_mtim.tv_sec, self.stat.st_mtim.tv_nsec)
@@ -1454,6 +1454,7 @@ impl File {
             target_os = "horizon",
             target_os = "vxworks",
             target_os = "nuttx",
+            target_os = "l4re"
         )))]
         let to_timespec = |time: Option<SystemTime>| match time {
             Some(time) if let Some(ts) = time.t.to_timespec() => Ok(ts),
@@ -1468,7 +1469,7 @@ impl File {
             None => Ok(libc::timespec { tv_sec: 0, tv_nsec: libc::UTIME_OMIT as _ }),
         };
         cfg_if::cfg_if! {
-            if #[cfg(any(target_os = "redox", target_os = "espidf", target_os = "horizon", target_os = "vxworks", target_os = "nuttx"))] {
+            if #[cfg(any(target_os = "redox", target_os = "espidf", target_os = "horizon", target_os = "vxworks", target_os = "nuttx", target_os = "l4re"))] {
                 // Redox doesn't appear to support `UTIME_OMIT`.
                 // ESP-IDF and HorizonOS do not support `futimens` at all and the behavior for those OS is therefore
                 // the same as for Redox.
@@ -1857,7 +1858,7 @@ pub fn link(original: &Path, link: &Path) -> io::Result<()> {
     run_path_with_cstr(original, &|original| {
         run_path_with_cstr(link, &|link| {
             cfg_if::cfg_if! {
-                if #[cfg(any(target_os = "vxworks", target_os = "redox", target_os = "android", target_os = "espidf", target_os = "horizon", target_os = "vita", target_env = "nto70"))] {
+                if #[cfg(any(target_os = "vxworks", target_os = "redox", target_os = "android", target_os = "espidf", target_os = "horizon", target_os = "vita", target_env = "nto70", target_os = "l4re"))] {
                     // VxWorks, Redox and ESP-IDF lack `linkat`, so use `link` instead. POSIX leaves
                     // it implementation-defined whether `link` follows symlinks, so rely on the
                     // `symlink_hard_link` test in library/std/src/fs/tests.rs to check the behavior.
@@ -2145,6 +2146,7 @@ pub use remove_dir_impl::remove_dir_all;
     target_os = "vita",
     target_os = "nto",
     target_os = "vxworks",
+    target_os = "l4re",
     miri
 ))]
 mod remove_dir_impl {
@@ -2159,6 +2161,7 @@ mod remove_dir_impl {
     target_os = "vita",
     target_os = "nto",
     target_os = "vxworks",
+    target_os = "l4re",
     miri
 )))]
 mod remove_dir_impl {
