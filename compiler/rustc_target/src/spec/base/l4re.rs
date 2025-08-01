@@ -15,7 +15,7 @@ pub(crate) fn opts() -> TargetOptions {
 
     let pre_link_args = prepare_args!(
         "-nostdlib",
-        "-dynamic-linker=rom/libld-l4.so"
+        "-dynamic-linker=rom/libld-l4.so.1"
     );
 
        // "-lc_be_l4refile",
